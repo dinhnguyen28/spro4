@@ -195,10 +195,10 @@ class TicketListItem extends StatelessWidget {
                         builder: (context, state) {
                           if (state.ticketStatus.name == "COMPLETED") {
                             dates = readTimestamp(
-                                content.ticketFinishTime!, 'dd/MM');
+                                content.ticketFinishTime ?? 0, 'dd/MM');
                           } else if (state.ticketStatus.name == "CANCEL") {
                             dates = readTimestamp(
-                                content.ticketCanceledTime!, 'dd/MM');
+                                content.ticketCanceledTime ?? 0, 'dd/MM');
                           }
                           return Text(
                             dates,

@@ -32,7 +32,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
       final getlistServices = await getFilter();
 
       emit(state.copyWith(
-        listServices: getlistServices.data!.listServices,
+        listServices: getlistServices.data?.listServices ?? [],
       ));
 
       if (getlistServices.code == 1) {
@@ -252,13 +252,13 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
       CategoryCancel event, Emitter<TicketState> emit) async {
     emit(state.copyWith(listStatus: _tempSelected));
 
-    debugPrint(state.listStatus.toString());
+    // debugPrint(state.listStatus.toString());
   }
 
   Future<void> _onOpenDialog(
       OpenDialog event, Emitter<TicketState> emit) async {
     _tempSelected = state.listStatus;
-    debugPrint(_tempSelected.toString());
+    // debugPrint(_tempSelected.toString());
   }
 
   Future<void> _onCategoryTicket(
@@ -370,7 +370,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
         hasReachedMax: false,
       ));
 
-      debugPrint(state.listDateFilter.toString());
+      // debugPrint(state.listDateFilter.toString());
     } catch (_) {
       emit(state.copyWith(status: Status.failure));
     }

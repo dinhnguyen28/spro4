@@ -27,3 +27,32 @@ class CancelTicket extends PhaseEvent {
   @override
   List<Object> get props => [];
 }
+
+class RatingTicket extends PhaseEvent {
+  final int? procInstId;
+  final String comment;
+
+  const RatingTicket(
+    this.procInstId,
+    this.comment,
+  );
+
+  @override
+  List<Object> get props => [];
+}
+
+class ChangeRating extends PhaseEvent {
+  final double rating;
+
+  const ChangeRating(
+    this.rating,
+  );
+  @override
+  List<Object> get props => [];
+}
+
+class CancelRating extends PhaseEvent {
+  const CancelRating();
+  @override
+  List<Object> get props => [];
+}

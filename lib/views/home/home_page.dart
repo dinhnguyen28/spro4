@@ -184,23 +184,21 @@ class HomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(26))),
                                   ),
-                                  onPressed: _isVisible
-                                      ? null
-                                      : () {
-                                          showDialog(
-                                            barrierDismissible: false,
-                                            context: context,
-                                            builder: (_) {
-                                              context
-                                                  .read<TicketBloc>()
-                                                  .add(const OpenDialog());
+                                  onPressed: () {
+                                    showDialog(
+                                      barrierDismissible: false,
+                                      context: context,
+                                      builder: (_) {
+                                        context
+                                            .read<TicketBloc>()
+                                            .add(const OpenDialog());
 
-                                              return CategoryDialog(
-                                                  ticketBloc: context
-                                                      .read<TicketBloc>());
-                                            },
-                                          );
-                                        },
+                                        return CategoryDialog(
+                                            ticketBloc:
+                                                context.read<TicketBloc>());
+                                      },
+                                    );
+                                  },
                                   child: const Text(
                                     "Loại yêu cầu",
                                     style: TextStyle(color: Color(0xFF262626)),

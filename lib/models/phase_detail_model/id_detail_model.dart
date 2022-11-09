@@ -36,7 +36,7 @@ class Data {
   dynamic ticketStartedTime;
   dynamic ticketCanceledTime;
   int? ticketCreatedTime;
-  dynamic ticketFinishTime;
+  int? ticketFinishTime;
   String? ticketStatus;
   String? procServiceName;
   String? ticketStartUserId;

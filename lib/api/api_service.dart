@@ -1,11 +1,10 @@
-import 'dart:developer';
-
 import 'package:flutter/cupertino.dart';
 import 'package:login_bloc/bloc/ticket_bloc/ticket_bloc.dart';
 import 'package:login_bloc/models/cancel_ticket_model/cancel_ticket_model.dart';
 import 'package:login_bloc/models/get_filter_model/filter_model.dart';
 import 'package:login_bloc/models/phase_detail_model/id_detail_model.dart';
 import 'package:login_bloc/models/phase_detail_model/phase_detail_model.dart';
+import 'package:login_bloc/models/rating_ticket_model/rating_ticket_model.dart';
 
 import 'package:login_bloc/models/ticket_model/ticket_model.dart';
 import 'package:login_bloc/models/login_model/login_models.dart';
@@ -165,5 +164,27 @@ Future<CancelTicket> cancelTicket(String? ticketId, String? reason) async {
     return CancelTicket.fromJson(json.decode(response.body));
   } else {
     return CancelTicket();
+  }
+}
+
+Future<RatingTicket> closeTicket(
+    int? procInstId, double? rating, String? comment) async {
+  final response =
+      await http.post(Uri.http(_apiUri, 'business-process/closeTicket'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ${await accessToken}',
+          },
+          body: jsonEncode({
+            "procInstId": procInstId,
+            "rating": rating,
+            "comment": comment,
+          }));
+
+  if (response.statusCode == 200) {
+    return RatingTicket.fromJson(json.decode(response.body));
+  } else {
+    return RatingTicket();
   }
 }

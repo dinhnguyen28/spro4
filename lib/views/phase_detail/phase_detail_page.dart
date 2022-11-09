@@ -1,6 +1,7 @@
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/svg.dart';
 
 import 'package:login_bloc/bloc/phase_bloc/phase_bloc.dart';
@@ -9,6 +10,7 @@ import 'package:login_bloc/bloc/phase_bloc/phase_state.dart';
 import 'package:login_bloc/bloc/ticket_bloc/ticket_bloc.dart' as ticketbloc;
 
 import 'package:login_bloc/views/dialogs/cancel_ticket_dialog/dialog_cancel_ticket.dart';
+import 'package:login_bloc/views/dialogs/rating_ticket_dialog/rating_ticket_dialog.dart';
 
 class PhaseDetail extends StatefulWidget {
   const PhaseDetail({
@@ -42,42 +44,6 @@ class PhaseDetailState extends State<PhaseDetail> {
       home: BlocProvider(
         create: (context) => PhaseBloc()..add(LoadPhaseDetail(widget.id)),
         child: Scaffold(
-          floatingActionButton: BlocBuilder<PhaseBloc, PhaseState>(
-            buildWhen: (previous, current) => previous.status != current.status,
-            builder: (context, state) {
-              switch (state.status) {
-                case Status.loading:
-                  break;
-                case Status.success:
-                  List<String> listStatus = ticketbloc
-                      .listStatus[ticketbloc.TicketStatus.ONGOING]!
-                      .map((e) => e.name)
-                      .toList();
-
-                  if (listStatus.contains(state.idData!.data!.ticketStatus)) {
-                    return ElevatedButton(
-                      onPressed: () {
-                        showDialog(
-                            context: context,
-                            builder: (BuildContext dialogContext) {
-                              return CanCelDialog(
-                                ticketId: state.idData!.data!.ticketId,
-                                phaseBloc: context.read<PhaseBloc>(),
-                              );
-                            });
-                      },
-                      child: const Text('Huỷ phiếu'),
-                    );
-                  }
-                  break;
-                case Status.failure:
-                  break;
-              }
-              return const SizedBox.shrink();
-            },
-          ),
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerFloat,
           backgroundColor: const Color(0xFFE5E5E5),
           appBar: AppBar(
             elevation: 0,
@@ -105,9 +71,11 @@ class PhaseDetailState extends State<PhaseDetail> {
           ),
           body: SafeArea(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                Flexible(
+                SizedBox(
+                  width: double.infinity,
+                  // MediaQuery.of(context).size.width,
                   child: DecoratedBox(
                     decoration: const BoxDecoration(color: Colors.white),
                     child: Padding(
@@ -125,162 +93,265 @@ class PhaseDetailState extends State<PhaseDetail> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Container(
-                    color: Colors.white,
-                    child: ExpandableNotifier(
-                        initialExpanded: true,
-                        child: Column(
-                          children: <Widget>[
-                            ExpandablePanel(
-                              theme: const ExpandableThemeData(
-                                headerAlignment:
-                                    ExpandablePanelHeaderAlignment.center,
-                                tapBodyToCollapse: false,
-                              ),
-                              header: Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 16,
-                                  top: 15,
-                                  bottom: 15,
-                                ),
-                                child: Row(
-                                  children: <Widget>[
-                                    SvgPicture.asset(
-                                        "assets/ticket_information.svg"),
-                                    const Padding(
-                                      padding: EdgeInsets.only(left: 16.0),
-                                      child: Text('Ticket Infomation',
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.w400,
-                                              color: Color(0xFF262626))),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Container(
+                            color: Colors.white,
+                            child: ExpandableNotifier(
+                                initialExpanded: true,
+                                child: ExpandablePanel(
+                                  theme: const ExpandableThemeData(
+                                    headerAlignment:
+                                        ExpandablePanelHeaderAlignment.center,
+                                    tapBodyToCollapse: false,
+                                  ),
+                                  header: Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 16,
+                                      top: 15,
+                                      bottom: 15,
                                     ),
-                                  ],
-                                ),
-                              ),
-                              collapsed: const SizedBox.shrink(),
-                              expanded: Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 16, right: 16, top: 12, bottom: 14),
-                                child:
-                                    // color: Colors.yellowAccent,
-                                    BlocBuilder<PhaseBloc, PhaseState>(
-                                  builder: (context, state) {
-                                    switch (state.status) {
-                                      case Status.loading:
-                                        return const Center(
-                                            child: CircularProgressIndicator());
-                                      case Status.success:
-                                        List<Widget> widgets = [];
+                                    child: Row(
+                                      children: <Widget>[
+                                        SvgPicture.asset(
+                                            "assets/ticket_information.svg"),
+                                        const Padding(
+                                          padding: EdgeInsets.only(left: 16.0),
+                                          child: Text('Ticket Infomation',
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w400,
+                                                  color: Color(0xFF262626))),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  collapsed: const SizedBox.shrink(),
+                                  expanded: Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 16,
+                                        right: 16,
+                                        top: 12,
+                                        bottom: 14),
+                                    child: BlocBuilder<PhaseBloc, PhaseState>(
+                                      builder: (context, state) {
+                                        switch (state.status) {
+                                          case Status.loading:
+                                            return const Center(
+                                                child:
+                                                    CircularProgressIndicator());
+                                          case Status.success:
+                                            List<Widget> widgets = [];
 
-                                        state.listTicketInfo!
-                                            .forEach((key, value) {
-                                          if (key == 'Trạng thái') {
-                                            widgets.add(
-                                              // color: Colors.lightBlueAccent,
-                                              Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    SizedBox(
-                                                      width: 140,
-                                                      child: Text(key,
-                                                          style:
-                                                              const TextStyle(
-                                                            color: Color(
-                                                                0xFF8C8C8C),
-                                                            fontSize: 16,
-                                                          )),
-                                                    ),
-                                                    Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              top: 14),
-                                                      child: Transform(
-                                                        transform:
-                                                            Matrix4.identity()
-                                                              ..scale(0.7),
-                                                        child: Chip(
-                                                            backgroundColor:
-                                                                const Color(
-                                                                    0xFFE8F4FF),
-                                                            side:
-                                                                const BorderSide(
-                                                                    color: Colors
-                                                                        .blue),
-                                                            label: Text(value,
+                                            state.listTicketInfo
+                                                .forEach((key, value) {
+                                              if (key == 'Đánh giá' &&
+                                                  ["COMPLETED", "CLOSED"]
+                                                      .contains(state
+                                                          .idData!
+                                                          .data!
+                                                          .ticketStatus)) {
+                                                widgets.add(
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 15.0),
+                                                    child: Row(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          SizedBox(
+                                                            width: 144,
+                                                            child: Text(key,
                                                                 style:
                                                                     const TextStyle(
-                                                                  color: Colors
-                                                                      .blue,
+                                                                  color: Color(
+                                                                      0xFF8C8C8C),
                                                                   fontSize: 16,
-                                                                ))),
-                                                      ),
-                                                    )
-                                                  ]),
-                                            );
-                                          } else {
-                                            widgets.add(Padding(
-                                              padding: const EdgeInsets.only(
-                                                  top: 15.0),
-                                              child: Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.center,
-                                                  children: [
-                                                    SizedBox(
-                                                      width: 140,
-                                                      child: Text(key,
-                                                          style:
-                                                              const TextStyle(
-                                                            color: Color(
-                                                                0xFF8C8C8C),
-                                                            fontSize: 16,
-                                                          )),
-                                                    ),
-                                                    Flexible(
-                                                      child: Text(value,
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          style:
-                                                              const TextStyle(
-                                                            color: Color(
-                                                                0xFF262626),
-                                                            fontSize: 16,
-                                                          )),
-                                                    )
-                                                  ]),
-                                            ));
-                                          }
-                                        });
+                                                                )),
+                                                          ),
+                                                          Expanded(
+                                                            child:
+                                                                RatingBarIndicator(
+                                                              itemSize: 23,
+                                                              rating: value,
+                                                              itemBuilder:
+                                                                  (_, __) {
+                                                                return const Icon(
+                                                                  Icons.star,
+                                                                  color: Colors
+                                                                      .amberAccent,
+                                                                );
+                                                              },
+                                                            ),
+                                                          )
+                                                        ]),
+                                                  ),
+                                                );
+                                              } else if (key == 'Trạng thái') {
+                                                widgets.add(
+                                                  Row(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        SizedBox(
+                                                          width: 144,
+                                                          child: Text(key,
+                                                              style:
+                                                                  const TextStyle(
+                                                                color: Color(
+                                                                    0xFF8C8C8C),
+                                                                fontSize: 16,
+                                                              )),
+                                                        ),
+                                                        Padding(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                      .only(
+                                                                  top: 14),
+                                                          child: Transform(
+                                                            transform: Matrix4
+                                                                .identity()
+                                                              ..scale(0.7),
+                                                            child: Chip(
+                                                                backgroundColor:
+                                                                    const Color(
+                                                                        0xFFE8F4FF),
+                                                                side: const BorderSide(
+                                                                    color: Colors
+                                                                        .blue),
+                                                                label: Text(
+                                                                    value,
+                                                                    style:
+                                                                        const TextStyle(
+                                                                      color: Colors
+                                                                          .blue,
+                                                                      fontSize:
+                                                                          16,
+                                                                    ))),
+                                                          ),
+                                                        )
+                                                      ]),
+                                                );
+                                              } else {
+                                                widgets.add(Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 15.0),
+                                                  child: Row(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .center,
+                                                      children: [
+                                                        SizedBox(
+                                                          width: 144,
+                                                          child: Text(key,
+                                                              style:
+                                                                  const TextStyle(
+                                                                color: Color(
+                                                                    0xFF8C8C8C),
+                                                                fontSize: 16,
+                                                              )),
+                                                        ),
+                                                        Flexible(
+                                                          child: Text(
+                                                              value == 0.0 ||
+                                                                      value ==
+                                                                          ""
+                                                                  ? "-"
+                                                                  : value
+                                                                      .toString(),
+                                                              maxLines: 2,
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              style:
+                                                                  const TextStyle(
+                                                                color: Color(
+                                                                    0xFF262626),
+                                                                fontSize: 16,
+                                                              )),
+                                                        )
+                                                      ]),
+                                                ));
+                                              }
+                                            });
 
-                                        return Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.center,
-                                            children: widgets);
+                                            return Column(children: widgets);
 
-                                      case Status.failure:
-                                        return const Center(
-                                            child: Text("Failed to load"));
-                                    }
+                                          case Status.failure:
+                                            return const Center(
+                                                child: Text("Failed to load"));
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                  builder: (_, collapsed, expanded) {
+                                    return Expandable(
+                                      collapsed: collapsed,
+                                      expanded: expanded,
+                                    );
                                   },
-                                ),
-                              ),
-                              builder: (_, collapsed, expanded) {
-                                return Expandable(
-                                  collapsed: collapsed,
-                                  expanded: expanded,
-                                );
-                              },
-                            ),
-                          ],
-                        )),
+                                )),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
+                BlocBuilder<PhaseBloc, PhaseState>(
+                  builder: (context, state) {
+                    switch (state.status) {
+                      case Status.success:
+                        List<String> listStatus = ticketbloc
+                            .listStatus[ticketbloc.TicketStatus.ONGOING]!
+                            .map((e) => e.name)
+                            .toList();
+
+                        if (listStatus
+                            .contains(state.idData!.data!.ticketStatus)) {
+                          return TextButton(
+                            onPressed: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext dialogContext) {
+                                    return CanCelDialog(
+                                      ticketId: state.idData!.data!.ticketId,
+                                      phaseBloc: context.read<PhaseBloc>(),
+                                    );
+                                  });
+                            },
+                            child: const Text('Huỷ phiếu'),
+                          );
+                        } else if (state.idData!.data!.ticketStatus ==
+                            "COMPLETED") {
+                          return TextButton(
+                            onPressed: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext dialogContext) {
+                                    return RatingDialog(
+                                      id: state.idData!.data!.id,
+                                      phaseBloc: context.read<PhaseBloc>(),
+                                    );
+                                  });
+                            },
+                            child: const Text('Đánh giá'),
+                          );
+                        }
+                        break;
+                      default:
+                        break;
+                    }
+                    return const SizedBox.shrink();
+                  },
+                )
               ],
             ),
           ),
