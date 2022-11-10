@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:login_bloc/models/ticket_model/ticket_model.dart';
+import 'package:spro4/models/ticket_model/ticket_model.dart';
 
 class DetailPage extends StatelessWidget {
   const DetailPage({super.key, required this.content});

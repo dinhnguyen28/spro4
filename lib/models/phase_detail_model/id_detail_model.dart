@@ -41,7 +41,7 @@ class Data {
   String? procServiceName;
   String? ticketStartUserId;
   double? ticketRating;
-  dynamic comment;
+  String? comment;
   List<String>? listOwner;
   dynamic listService;
   dynamic listStatus;

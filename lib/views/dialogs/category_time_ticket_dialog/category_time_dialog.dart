@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:login_bloc/bloc/ticket_bloc/ticket_bloc.dart';
+import 'package:spro4/bloc/ticket_bloc/ticket_bloc.dart';
 
 class CategoryTimeDialog extends StatelessWidget {
   const CategoryTimeDialog({super.key, required this.ticketBloc});

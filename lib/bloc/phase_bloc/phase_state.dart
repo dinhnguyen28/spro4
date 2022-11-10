@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
-import 'package:login_bloc/bloc/ticket_bloc/ticket_bloc.dart';
-import 'package:login_bloc/models/phase_detail_model/id_detail_model.dart';
+import 'package:spro4/bloc/ticket_bloc/ticket_bloc.dart';
+import 'package:spro4/models/phase_detail_model/id_detail_model.dart';
 
 enum Status { loading, success, failure }
 

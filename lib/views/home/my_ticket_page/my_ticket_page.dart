@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:login_bloc/bloc/ticket_bloc/ticket_bloc.dart';
+import 'package:spro4/bloc/ticket_bloc/ticket_bloc.dart';
 
-import 'package:login_bloc/models/ticket_model/ticket_model.dart';
-import 'package:login_bloc/module/convert/enum_to_string.dart';
-import 'package:login_bloc/module/deboucing/debouncer.dart';
-import 'package:login_bloc/module/time_stamp/time_stamp.dart';
-import 'package:login_bloc/views/dialogs/category_ticket_dialog/category_dialog.dart';
-import 'package:login_bloc/views/dialogs/category_time_ticket_dialog/category_time_dialog.dart';
-import 'package:login_bloc/views/phase_detail/phase_detail_page.dart';
+import 'package:spro4/models/ticket_model/ticket_model.dart';
+import 'package:spro4/module/convert/enum_to_string.dart';
+import 'package:spro4/module/deboucing/debouncer.dart';
+import 'package:spro4/module/time_stamp/time_stamp.dart';
+import 'package:spro4/views/dialogs/category_ticket_dialog/category_dialog.dart';
+import 'package:spro4/views/dialogs/category_time_ticket_dialog/category_time_dialog.dart';
+import 'package:spro4/views/phase_detail/phase_detail_page.dart';
 
-part 'my_ticket_list/my_ticket_list.dart';
-part '../dialogs/dialog_filter.dart';
+part '../my_ticket_list/my_ticket_list.dart';
+part '../../dialogs/dialog_filter.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});

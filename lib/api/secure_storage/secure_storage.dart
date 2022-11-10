@@ -1,5 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:login_bloc/models/storage_item_model/storage_item.dart';
+import 'package:spro4/models/storage_item_model/storage_item.dart';
 
 class SecureStorage {
   final storage = const FlutterSecureStorage();

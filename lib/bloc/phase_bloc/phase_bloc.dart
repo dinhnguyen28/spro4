@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:login_bloc/api/api_service.dart';
-import 'package:login_bloc/bloc/phase_bloc/phase_event.dart';
-import 'package:login_bloc/bloc/phase_bloc/phase_state.dart';
-import 'package:login_bloc/module/time_stamp/time_stamp.dart';
+import 'package:spro4/api/api_service.dart';
+import 'package:spro4/bloc/phase_bloc/phase_event.dart';
+import 'package:spro4/bloc/phase_bloc/phase_state.dart';
+
+import 'package:spro4/module/time_stamp/time_stamp.dart';
 
 class PhaseBloc extends Bloc<PhaseEvent, PhaseState> {
   PhaseBloc() : super(const PhaseState()) {
@@ -14,24 +17,51 @@ class PhaseBloc extends Bloc<PhaseEvent, PhaseState> {
     on<CancelRating>(_onCancelRating);
   }
 
+  Map<String, dynamic> listTckInfor = {
+    'Loại yêu cầu': "",
+    'Người tạo': "",
+    'Trạng thái': "",
+    'Ngày tạo': "",
+    'Ngày nhận': "",
+    'Ngày phản hồi': "",
+    'Ngày hoàn tất': "",
+    'Đánh giá': 0.0,
+  };
+
   Future<void> _onLoadPhaseDetail(
       LoadPhaseDetail event, Emitter<PhaseState> emit) async {
     try {
       emit(state.copyWith(status: Status.loading));
       final idTicketData = await idTicket(event.id);
 
-      final Map<String, dynamic> listTckInfor = {
-        'Loại yêu cầu': '${idTicketData.data!.procServiceName}',
-        'Người tạo': '${idTicketData.data!.fullName}',
-        'Trạng thái': '${idTicketData.data!.ticketStatus}',
-        'Ngày tạo': readTimestamp(
-            idTicketData.data!.ticketCreatedTime!, 'dd/MM/yy, HH:mm'),
-        'Ngày nhận': "",
-        'Ngày phản hồi': "",
-        'Ngày hoàn tất': readTimestamp(
-            idTicketData.data!.ticketFinishTime ?? 0, 'dd/MM/yy, HH:mm'),
-        'Đánh giá': idTicketData.data!.ticketRating,
-      };
+      listTckInfor.update(
+          "Loại yêu cầu", (value) => idTicketData.data!.procServiceName);
+      listTckInfor.update("Người tạo", (value) => idTicketData.data!.fullName);
+      listTckInfor.update(
+          "Trạng thái", (value) => idTicketData.data!.ticketStatus);
+      listTckInfor.update(
+          "Ngày tạo",
+          (value) => readTimestamp(
+              idTicketData.data!.ticketCreatedTime!, 'dd/MM/yy, HH:mm'));
+      listTckInfor.update(
+          "Ngày hoàn tất",
+          (value) => readTimestamp(
+              idTicketData.data!.ticketFinishTime ?? 0, 'dd/MM/yy, HH:mm'));
+      listTckInfor.update(
+          "Đánh giá", (value) => idTicketData.data!.ticketRating);
+
+      // final Map<String, dynamic> listTckInfor = {
+      //   'Loại yêu cầu': '${idTicketData.data!.procServiceName}',
+      //   'Người tạo': '${idTicketData.data!.fullName}',
+      //   'Trạng thái': '${idTicketData.data!.ticketStatus}',
+      //   'Ngày tạo': readTimestamp(
+      //       idTicketData.data!.ticketCreatedTime!, 'dd/MM/yy, HH:mm'),
+      //   'Ngày nhận': "",
+      //   'Ngày phản hồi': "",
+      //   'Ngày hoàn tất': readTimestamp(
+      //       idTicketData.data!.ticketFinishTime ?? 0, 'dd/MM/yy, HH:mm'),
+      //   'Đánh giá': idTicketData.data!.ticketRating,
+      // };
 
       emit(state.copyWith(
         idData: idTicketData,
@@ -48,7 +78,8 @@ class PhaseBloc extends Bloc<PhaseEvent, PhaseState> {
     try {
       emit(state.copyWith(status: Status.loading));
 
-      final cancel = await cancelTicket(event.ticketId, event.reason);
+      final cancel =
+          await cancelTicket(state.idData!.data!.ticketId, event.reason);
 
       if (cancel.code == 1) {
         final idTicketData = await idTicket(state.idData?.data?.id ?? 0);
@@ -82,6 +113,7 @@ class PhaseBloc extends Bloc<PhaseEvent, PhaseState> {
         checkRating: false,
         validateComment: false,
         visible: false,
+        popContext: false,
         rating: 0.0));
   }
 
@@ -91,34 +123,28 @@ class PhaseBloc extends Bloc<PhaseEvent, PhaseState> {
             visible: true,
             rating: event.rating,
             checkRating: false,
-            // popContext: false,
+            popContext: false,
           ))
         : emit(state.copyWith(
             visible: false,
             rating: event.rating,
             validateComment: false,
             checkRating: false,
-            // popContext: true,
+            popContext: true,
           ));
   }
 
   Future<void> _onRatingTicket(
       RatingTicket event, Emitter<PhaseState> emit) async {
-    // bool value = false;
-
-    if (state.rating == 0.0) {
+    if (state.rating == 0) {
       emit(state.copyWith(checkRating: true));
     } else if (state.visible && event.comment.isEmpty) {
       emit(state.copyWith(validateComment: true));
     } else {
-      // emit(state.copyWith(popContext: true));
-
-      // debugPrint("${event.procInstId} + ${state.rating} + ${event.comment}");
-
       try {
         emit(state.copyWith(status: Status.loading));
-        final ratingTicket =
-            await closeTicket(event.procInstId, state.rating, event.comment);
+        final ratingTicket = await closeTicket(
+            state.idData!.data!.id, state.rating, event.comment);
 
         if (ratingTicket.code == 1) {
           final idTicketData = await idTicket(state.idData?.data?.id ?? 0);
@@ -140,6 +166,9 @@ class PhaseBloc extends Bloc<PhaseEvent, PhaseState> {
             idData: idTicketData,
             listTicketInfo: listTckInfor,
             status: Status.success,
+            popContext: true,
+            visible: false,
+            validateComment: false,
           ));
         } else {
           debugPrint("nooooo");
@@ -148,7 +177,5 @@ class PhaseBloc extends Bloc<PhaseEvent, PhaseState> {
         emit(state.copyWith(status: Status.failure));
       }
     }
-
-    // return value;
   }
 }

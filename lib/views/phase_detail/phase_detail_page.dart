@@ -1,16 +1,19 @@
+import 'dart:developer';
+
 import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/svg.dart';
 
-import 'package:login_bloc/bloc/phase_bloc/phase_bloc.dart';
-import 'package:login_bloc/bloc/phase_bloc/phase_event.dart';
-import 'package:login_bloc/bloc/phase_bloc/phase_state.dart';
-import 'package:login_bloc/bloc/ticket_bloc/ticket_bloc.dart' as ticketbloc;
+import 'package:spro4/bloc/phase_bloc/phase_bloc.dart';
+import 'package:spro4/bloc/phase_bloc/phase_event.dart';
+import 'package:spro4/bloc/phase_bloc/phase_state.dart';
+import 'package:spro4/bloc/ticket_bloc/ticket_bloc.dart' as ticketbloc;
 
-import 'package:login_bloc/views/dialogs/cancel_ticket_dialog/dialog_cancel_ticket.dart';
-import 'package:login_bloc/views/dialogs/rating_ticket_dialog/rating_ticket_dialog.dart';
+import 'package:spro4/views/dialogs/cancel_ticket_dialog/dialog_cancel_ticket.dart';
+
+import 'package:spro4/views/dialogs/rating_ticket_dialog/rating_ticket_dialog.dart';
 
 class PhaseDetail extends StatefulWidget {
   const PhaseDetail({
@@ -175,7 +178,25 @@ class PhaseDetailState extends State<PhaseDetail> {
                                                                   fontSize: 16,
                                                                 )),
                                                           ),
-                                                          Expanded(
+                                                          GestureDetector(
+                                                            onTap: () {
+                                                              if (state
+                                                                      .idData!
+                                                                      .data!
+                                                                      .ticketStatus ==
+                                                                  "COMPLETED") {
+                                                                ratingTicketDialog(
+                                                                    context,
+                                                                    context.read<
+                                                                        PhaseBloc>());
+                                                              } else if (state
+                                                                      .idData!
+                                                                      .data!
+                                                                      .ticketStatus ==
+                                                                  "CLOSED") {
+                                                                log("What are u pressing for");
+                                                              }
+                                                            },
                                                             child:
                                                                 RatingBarIndicator(
                                                               itemSize: 23,
@@ -318,14 +339,8 @@ class PhaseDetailState extends State<PhaseDetail> {
                             .contains(state.idData!.data!.ticketStatus)) {
                           return TextButton(
                             onPressed: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext dialogContext) {
-                                    return CanCelDialog(
-                                      ticketId: state.idData!.data!.ticketId,
-                                      phaseBloc: context.read<PhaseBloc>(),
-                                    );
-                                  });
+                              cancelTicketDialog(
+                                  context, context.read<PhaseBloc>());
                             },
                             child: const Text('Huỷ phiếu'),
                           );
@@ -333,14 +348,8 @@ class PhaseDetailState extends State<PhaseDetail> {
                             "COMPLETED") {
                           return TextButton(
                             onPressed: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext dialogContext) {
-                                    return RatingDialog(
-                                      id: state.idData!.data!.id,
-                                      phaseBloc: context.read<PhaseBloc>(),
-                                    );
-                                  });
+                              // ratingTicketDialog(
+                              //     context, context.read<PhaseBloc>());
                             },
                             child: const Text('Đánh giá'),
                           );

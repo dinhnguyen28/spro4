@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:login_bloc/api/secure_storage/secure_storage.dart';
+import 'package:spro4/api/secure_storage/secure_storage.dart';
 
-import 'package:login_bloc/views/login/login_page.dart';
+import 'package:spro4/views/login/login_page.dart';
 
 final SecureStorage secureStorage = SecureStorage();
 

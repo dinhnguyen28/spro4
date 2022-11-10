@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:login_bloc/bloc/login_validation_bloc/login_validation_bloc.dart';
-import 'package:login_bloc/views/home/home_page.dart';
+import 'package:spro4/bloc/login_validation_bloc/login_validation_bloc.dart';
+import 'package:spro4/views/home/my_ticket_page/my_ticket_page.dart';
 
 class Login extends StatelessWidget {
   const Login({super.key});

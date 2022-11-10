@@ -1,4 +1,4 @@
-part of '/views/home/home_page.dart';
+part of '../my_ticket_page/my_ticket_page.dart';
 
 class MyTicketList extends StatelessWidget {
   const MyTicketList({

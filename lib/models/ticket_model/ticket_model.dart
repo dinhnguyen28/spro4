@@ -1,5 +1,3 @@
-import 'package:login_bloc/bloc/ticket_bloc/ticket_bloc.dart';
-
 class MyTicket {
   int? code;
   Data? data;
@@ -12,7 +10,7 @@ class MyTicket {
   });
 
   factory MyTicket.fromJson(Map<String, dynamic> json) => MyTicket(
-        code: json["code"] ?? '',
+        code: json["code"] ?? "",
         data: json['data'] != null ? Data.fromJson(json['data']) : null,
         message: json["message"] ?? '',
       );

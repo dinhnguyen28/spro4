@@ -1,11 +1,9 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
-
-import 'package:login_bloc/api/api_service.dart';
-import 'package:login_bloc/models/ticket_model/ticket_model.dart';
-import 'package:login_bloc/module/convert/enum_to_string.dart';
-import 'package:login_bloc/module/convert/string_to_date.dart';
+import 'package:spro4/api/api_service.dart';
+import 'package:spro4/models/ticket_model/ticket_model.dart';
+import 'package:spro4/module/convert/string_to_date.dart';
 
 part 'ticket_state.dart';
 part 'ticket_event.dart';
@@ -50,12 +48,11 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
           state.toDateCancel,
           [],
         );
-        content!.data!.content!.length < 10
+        (content?.data?.content?.length ?? 0) < 10
             ? emit(state.copyWith(
                 status: Status.success,
                 hasReachedMax: true,
-                ticketContent: content.data!.content,
-                totalElements: content.data!.totalElements,
+                ticketContent: content?.data?.content ?? [],
                 page: 2,
                 ticketStatus: event.ticketStatus,
                 listStatus: listStatus[event.ticketStatus],
@@ -70,8 +67,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
             : emit(state.copyWith(
                 status: Status.success,
                 hasReachedMax: false,
-                ticketContent: content.data!.content,
-                totalElements: content.data!.totalElements,
+                ticketContent: content?.data?.content ?? [],
                 page: 2,
                 ticketStatus: event.ticketStatus,
                 listStatus: listStatus[event.ticketStatus],
@@ -102,7 +98,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
       final getlistServices = await getFilter();
 
       emit(state.copyWith(
-        listServices: getlistServices.data!.listServices,
+        listServices: getlistServices.data?.listServices ?? [],
       ));
 
       if (getlistServices.code == 1) {
@@ -120,19 +116,17 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
           state.toDateCancel,
           [],
         );
-        content!.data!.content!.length < 10
+        (content?.data?.content?.length ?? 0) < 10
             ? emit(state.copyWith(
                 status: Status.success,
-                ticketContent: content.data!.content,
-                totalElements: content.data!.totalElements,
+                ticketContent: content?.data?.content ?? [],
                 hasReachedMax: true,
                 search: state.search,
               ))
             : emit(state.copyWith(
                 status: Status.success,
                 hasReachedMax: false,
-                ticketContent: content.data!.content,
-                totalElements: content.data!.totalElements,
+                ticketContent: content?.data?.content ?? [],
                 page: 2,
                 listStatus: listStatus[state.ticketStatus],
                 // listDateFilter: [],
@@ -206,19 +200,17 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
         state.listDateFilter,
       );
 
-      content!.data!.content!.length < 10
+      (content?.data?.content?.length ?? 0) < 10
           ? emit(state.copyWith(
               status: Status.success,
-              ticketContent: content.data!.content,
-              totalElements: content.data!.totalElements,
+              ticketContent: content?.data?.content ?? [],
               hasReachedMax: true,
               search: event.search,
             ))
           : emit(state.copyWith(
               status: Status.success,
               page: 2,
-              ticketContent: content.data!.content,
-              totalElements: content.data!.totalElements,
+              ticketContent: content?.data?.content ?? [],
               hasReachedMax: false,
               search: event.search,
             ));
@@ -282,8 +274,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
       emit(state.copyWith(
         status: Status.success,
         page: 2,
-        ticketContent: content!.data!.content,
-        totalElements: content.data!.totalElements,
+        ticketContent: content?.data?.content ?? [],
         hasReachedMax: false,
       ));
 
@@ -365,8 +356,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
       emit(state.copyWith(
         status: Status.success,
         page: 2,
-        ticketContent: content!.data!.content,
-        totalElements: content.data!.totalElements,
+        ticketContent: content?.data?.content ?? [],
         hasReachedMax: false,
       ));
 

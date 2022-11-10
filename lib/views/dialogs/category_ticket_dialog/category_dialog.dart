@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:login_bloc/bloc/ticket_bloc/ticket_bloc.dart';
-import 'package:login_bloc/module/convert/enum_to_string.dart';
+import 'package:spro4/bloc/ticket_bloc/ticket_bloc.dart';
+import 'package:spro4/module/convert/enum_to_string.dart';
 
 class CategoryDialog extends StatelessWidget {
   const CategoryDialog({super.key, required this.ticketBloc});

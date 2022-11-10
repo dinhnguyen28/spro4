@@ -17,11 +17,11 @@ class LoadPhaseDetail extends PhaseEvent {
 }
 
 class CancelTicket extends PhaseEvent {
-  final String? ticketId;
-  final String? reason;
+  // final String? ticketId;
+  final String reason;
 
   const CancelTicket(
-    this.ticketId,
+    // this.ticketId,
     this.reason,
   );
   @override
@@ -29,11 +29,9 @@ class CancelTicket extends PhaseEvent {
 }
 
 class RatingTicket extends PhaseEvent {
-  final int? procInstId;
   final String comment;
 
   const RatingTicket(
-    this.procInstId,
     this.comment,
   );
 

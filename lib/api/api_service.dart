@@ -1,16 +1,17 @@
 import 'package:flutter/cupertino.dart';
-import 'package:login_bloc/bloc/ticket_bloc/ticket_bloc.dart';
-import 'package:login_bloc/models/cancel_ticket_model/cancel_ticket_model.dart';
-import 'package:login_bloc/models/get_filter_model/filter_model.dart';
-import 'package:login_bloc/models/phase_detail_model/id_detail_model.dart';
-import 'package:login_bloc/models/phase_detail_model/phase_detail_model.dart';
-import 'package:login_bloc/models/rating_ticket_model/rating_ticket_model.dart';
 
-import 'package:login_bloc/models/ticket_model/ticket_model.dart';
-import 'package:login_bloc/models/login_model/login_models.dart';
-import 'package:login_bloc/main.dart';
 import 'package:http/http.dart' as http;
+import 'package:spro4/bloc/ticket_bloc/ticket_bloc.dart';
 import 'dart:convert';
+
+import 'package:spro4/main.dart';
+import 'package:spro4/models/cancel_ticket_model/cancel_ticket_model.dart';
+import 'package:spro4/models/count_ticket_model/count_ticket_model.dart';
+import 'package:spro4/models/get_filter_model/filter_model.dart';
+import 'package:spro4/models/login_model/login_models.dart';
+import 'package:spro4/models/phase_detail_model/id_detail_model.dart';
+import 'package:spro4/models/rating_ticket_model/rating_ticket_model.dart';
+import 'package:spro4/models/ticket_model/ticket_model.dart';
 
 const _apiUri = 'api-gateway-fis-mbf-spro4-dev.apps.xplat.fis.com.vn';
 
@@ -30,7 +31,20 @@ Future<LoginResponse> loginRequest(LoginRequest login) async {
   }
 }
 
-Future<Map<dynamic, dynamic>?> count() async {}
+Future<Count?> count() async {
+  final response = await http
+      .get(Uri.http(_apiUri, 'business-process/ticket/count'), headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'Authorization': 'Bearer ${await accessToken}',
+  });
+
+  if (response.statusCode == 200) {
+    return Count.fromJson(json.decode(response.body));
+  } else {
+    return Count();
+  }
+}
 
 Future<Filter> getFilter() async {
   final response = await http.post(
@@ -124,27 +138,6 @@ Future<IdData> idTicket(int id) async {
     return IdData.fromJson(json.decode(response.body));
   } else {
     return IdData();
-  }
-}
-
-Future<PhaseDetailData> _____(int procInstId, String taskDefKey) async {
-  final response = await http.get(
-      Uri.http(_apiUri, "business-process/loadActiveTask/getDetail", {
-        'procInstId': '$procInstId',
-        'taskDefKey': taskDefKey,
-        'user': '',
-        'status': '',
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer ${await accessToken}',
-      });
-
-  if (response.statusCode == 200) {
-    return PhaseDetailData.fromJson(json.decode(response.body));
-  } else {
-    return PhaseDetailData();
   }
 }
 
