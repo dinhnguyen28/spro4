@@ -31,7 +31,7 @@ Future<LoginResponse> loginRequest(LoginRequest login) async {
   }
 }
 
-Future<Count?> count() async {
+Future<Count> count() async {
   final response = await http
       .get(Uri.http(_apiUri, 'business-process/ticket/count'), headers: {
     'Content-Type': 'application/json',

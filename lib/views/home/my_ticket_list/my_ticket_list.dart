@@ -1,23 +1,20 @@
-part of '../my_ticket_page/my_ticket_page.dart';
+part of '../../my_ticket_page/my_ticket_page.dart';
 
 class MyTicketList extends StatelessWidget {
   const MyTicketList({
     super.key,
     required this.ticketStatus,
-    required this.ticketBloc,
   });
 
   final TicketStatus ticketStatus;
-  final TicketBloc ticketBloc;
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: ticketBloc,
-      child: TicketList(ticketStatus: ticketStatus),
-    );
+    return TicketList(ticketStatus: ticketStatus);
   }
 }
+
+TicketPageState myTicketPage = TicketPageState();
 
 class TicketList extends StatefulWidget {
   const TicketList({super.key, required this.ticketStatus});
@@ -29,12 +26,12 @@ class TicketList extends StatefulWidget {
 
 class TicketListState extends State<TicketList> {
   final _scrollController = ScrollController();
-  final _debouncer = Debouncer(milliseconds: 100);
 
   @override
   void initState() {
     super.initState();
-    context.read<TicketBloc>().add(LoadAllTicket(widget.ticketStatus));
+    // context.read<TicketBloc>().add(const CountTicket());
+    context.read<TicketBloc>().add(MyTicketLoadData(widget.ticketStatus));
     _scrollController.addListener(_onScroll);
   }
 
@@ -47,10 +44,8 @@ class TicketListState extends State<TicketList> {
   void _onScroll() {
     final currentScroll = _scrollController.offset;
     final maxScroll = _scrollController.position.maxScrollExtent;
-    if (currentScroll == maxScroll) {
-      _debouncer.run(() {
-        context.read<TicketBloc>().add(const LoadMoreTicket());
-      });
+    if (currentScroll >= (maxScroll * 0.9)) {
+      context.read<TicketBloc>().add(const LoadMoreTicket());
     }
   }
 
@@ -60,26 +55,48 @@ class TicketListState extends State<TicketList> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<TicketBloc, TicketState>(
-      builder: (context, state) {
-        switch (state.status) {
-          case Status.loading:
-            return const Center(child: CircularProgressIndicator());
-          case Status.success:
-            if (state.ticketContent.isEmpty) {
-              return RefreshIndicator(
-                  onRefresh: _onRefresh,
-                  child: const SizedBox(
-                    width: double.maxFinite,
-                    height: double.maxFinite,
-                    child: SingleChildScrollView(
-                        physics: AlwaysScrollableScrollPhysics(),
-                        child: Center(child: Text('Không có phiếu'))),
-                  ));
-            }
-            return RefreshIndicator(
-              onRefresh: _onRefresh,
-              child: ListView.builder(
+    return RefreshIndicator(
+      onRefresh: _onRefresh,
+      child: BlocBuilder<TicketBloc, TicketState>(
+        builder: (context, state) {
+          switch (state.status) {
+            case Status.loading:
+              return Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const <Widget>[
+                    SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 15.0),
+                      child: Text(
+                        "Loading ...",
+                        style: TextStyle(
+                            fontSize: 16, fontStyle: FontStyle.italic),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            case Status.success:
+              if (state.ticketContent.isEmpty) {
+                return const SizedBox(
+                  width: double.maxFinite,
+                  height: double.maxFinite,
+                  child: SingleChildScrollView(
+                      physics: AlwaysScrollableScrollPhysics(),
+                      child: Center(
+                          child: Padding(
+                        padding: EdgeInsets.only(top: 100.0),
+                        child: Text('Không có phiếu'),
+                      ))),
+                );
+              }
+              return ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
                 itemBuilder: (BuildContext context, int index) {
                   return index >= state.ticketContent.length
@@ -92,16 +109,24 @@ class TicketListState extends State<TicketList> {
                     ? state.ticketContent.length
                     : state.ticketContent.length + 1,
                 controller: _scrollController,
-              ),
-            );
+              );
 
-          case Status.failure:
-            return const Center(child: Text('Không thể tải phiếu'));
-        }
-      },
+            case Status.failure:
+              return const SizedBox(
+                width: double.maxFinite,
+                height: double.maxFinite,
+                child: SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    child: Center(child: Text('Không thể tải phiếu'))),
+              );
+          }
+        },
+      ),
     );
   }
 }
+
+//
 
 class TicketListItem extends StatelessWidget {
   const TicketListItem({
@@ -125,8 +150,8 @@ class TicketListItem extends StatelessWidget {
                 builder: (context) => PhaseDetail(
                     id: content.id ?? 0,
                     ticketTitle: content.ticketTitle,
-                    ticketStatus: ticketStatus))).then(
-            (_) => context.read<TicketBloc>().add(LoadAllTicket(ticketStatus)));
+                    ticketStatus: ticketStatus))).then((_) =>
+            context.read<TicketBloc>().add(MyTicketLoadData(ticketStatus)));
       },
       child: Padding(
         padding: const EdgeInsets.only(left: 16.0, right: 16.0),

@@ -35,20 +35,20 @@ class PhaseBloc extends Bloc<PhaseEvent, PhaseState> {
       final idTicketData = await idTicket(event.id);
 
       listTckInfor.update(
-          "Loại yêu cầu", (value) => idTicketData.data!.procServiceName);
-      listTckInfor.update("Người tạo", (value) => idTicketData.data!.fullName);
+          "Loại yêu cầu", (value) => idTicketData.data?.procServiceName);
+      listTckInfor.update("Người tạo", (value) => idTicketData.data?.fullName);
       listTckInfor.update(
-          "Trạng thái", (value) => idTicketData.data!.ticketStatus);
+          "Trạng thái", (value) => idTicketData.data?.ticketStatus);
       listTckInfor.update(
           "Ngày tạo",
           (value) => readTimestamp(
-              idTicketData.data!.ticketCreatedTime!, 'dd/MM/yy, HH:mm'));
+              idTicketData.data?.ticketCreatedTime ?? 0, 'dd/MM/yy, HH:mm'));
       listTckInfor.update(
           "Ngày hoàn tất",
           (value) => readTimestamp(
-              idTicketData.data!.ticketFinishTime ?? 0, 'dd/MM/yy, HH:mm'));
+              idTicketData.data?.ticketFinishTime ?? 0, 'dd/MM/yy, HH:mm'));
       listTckInfor.update(
-          "Đánh giá", (value) => idTicketData.data!.ticketRating);
+          "Đánh giá", (value) => idTicketData.data?.ticketRating);
 
       // final Map<String, dynamic> listTckInfor = {
       //   'Loại yêu cầu': '${idTicketData.data!.procServiceName}',

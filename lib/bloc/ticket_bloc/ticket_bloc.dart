@@ -1,8 +1,14 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:spro4/api/api_service.dart';
 import 'package:spro4/models/ticket_model/ticket_model.dart';
+import 'package:spro4/models/count_ticket_model/count_ticket_model.dart'
+    as ticketCountModel;
 import 'package:spro4/module/convert/string_to_date.dart';
 
 part 'ticket_state.dart';
@@ -10,9 +16,12 @@ part 'ticket_event.dart';
 
 class TicketBloc extends Bloc<TicketEvent, TicketState> {
   TicketBloc() : super(const TicketState()) {
-    on<LoadAllTicket>(_onLoadTicketData);
+    on<MyTicketLoadData>(_onMyTicketLoadData, transformer: restartable());
     on<RefreshTicket>(_onRefreshTicketData);
-    on<LoadMoreTicket>(_onLoadMoreTicketData);
+    on<LoadMoreTicket>(_onLoadMoreTicketData,
+        transformer: ((events, mapper) => events
+            .throttleTime(const Duration(milliseconds: 1500))
+            .switchMap(mapper)));
     on<SearchTicket>(_onSearchTicket);
     on<CategoryChecked>(_onCategoryChecked);
     on<CategoryTicket>(_onCategoryTicket);
@@ -22,23 +31,40 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
     on<CategoryTimeSubmit>(_onCategoryTimeSubmit);
   }
 
-  Future<void> _onLoadTicketData(
-      LoadAllTicket event, Emitter<TicketState> emit) async {
+  Future<void> _onMyTicketLoadData(
+      MyTicketLoadData event, Emitter<TicketState> emit) async {
     try {
-      emit(state.copyWith(status: Status.loading));
+      emit(state.copyWith(
+        tabStatus: Status.loading,
+        status: Status.loading,
+      ));
 
-      final getlistServices = await getFilter();
+      final countTicket = await count();
+
+      Map<TicketStatus, int> ticketCountTabs = {
+        TicketStatus.ONGOING: (countTicket.data?.opened ?? 0) +
+            (countTicket.data?.processing ?? 0) +
+            (countTicket.data?.deletedByRu ?? 0),
+        TicketStatus.COMPLETED: (countTicket.data?.completed ?? 0) +
+            (countTicket.data?.closed ?? 0),
+        TicketStatus.CANCEL: countTicket.data?.cancel ?? 0,
+        TicketStatus.DRAFT: countTicket.data?.draft ?? 0,
+        TicketStatus.SHARED: countTicket.data?.shared ?? 0,
+      };
 
       emit(state.copyWith(
-        listServices: getlistServices.data?.listServices ?? [],
+        tabStatus: Status.success,
+        ticketCountTab: ticketCountTabs,
       ));
+
+      final getlistServices = await getFilter();
 
       if (getlistServices.code == 1) {
         final content = await searchTicket(
           state.search,
           1,
           event.ticketStatus.name,
-          state.listServices,
+          getlistServices.data?.listServices,
           listStatus[event.ticketStatus],
           state.fromDate,
           state.toDate,
@@ -55,6 +81,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
                 ticketContent: content?.data?.content ?? [],
                 page: 2,
                 ticketStatus: event.ticketStatus,
+                listServices: getlistServices.data?.listServices ?? [],
                 listStatus: listStatus[event.ticketStatus],
                 listDateFilter: [],
                 fromDate: "",
@@ -70,6 +97,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
                 ticketContent: content?.data?.content ?? [],
                 page: 2,
                 ticketStatus: event.ticketStatus,
+                listServices: getlistServices.data?.listServices ?? [],
                 listStatus: listStatus[event.ticketStatus],
                 listDateFilter: [],
                 fromDate: "",
@@ -85,7 +113,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
       } else {
         emit(state.copyWith(status: Status.failure));
       }
-    } catch (_) {
+    } catch (e) {
       emit(state.copyWith(status: Status.failure));
     }
   }
@@ -93,7 +121,25 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
   Future<void> _onRefreshTicketData(
       RefreshTicket event, Emitter<TicketState> emit) async {
     try {
-      emit(state.copyWith(status: Status.loading));
+      emit(state.copyWith(status: Status.loading, tabStatus: Status.loading));
+
+      final countTicket = await count();
+
+      Map<TicketStatus, int> ticketCountTabs = {
+        TicketStatus.ONGOING: (countTicket.data?.opened ?? 0) +
+            (countTicket.data?.processing ?? 0) +
+            (countTicket.data?.deletedByRu ?? 0),
+        TicketStatus.COMPLETED: (countTicket.data?.completed ?? 0) +
+            (countTicket.data?.closed ?? 0),
+        TicketStatus.CANCEL: countTicket.data?.cancel ?? 0,
+        TicketStatus.DRAFT: countTicket.data?.draft ?? 0,
+        TicketStatus.SHARED: countTicket.data?.shared ?? 0,
+      };
+
+      emit(state.copyWith(
+        tabStatus: Status.success,
+        ticketCountTab: ticketCountTabs,
+      ));
 
       final getlistServices = await getFilter();
 
@@ -167,13 +213,13 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
         // debugPrint(
         //     'MORE ${state.ticketStatus.ticketStatus2String()}: "${state.search}" + page: ${state.page} + ${state.listStatus} ');
 
-        content!.data!.content!.isEmpty
+        content?.data?.content?.isEmpty ?? true
             ? emit(state.copyWith(hasReachedMax: true))
             : emit(state.copyWith(
                 page: state.page + 1,
                 hasReachedMax: false,
                 ticketContent: List.of(state.ticketContent)
-                  ..addAll(content.data!.content!.toList()),
+                  ..addAll(content?.data?.content?.toList() ?? []),
               ));
       }
     } catch (_) {
@@ -257,6 +303,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
       CategoryTicket event, Emitter<TicketState> emit) async {
     try {
       emit(state.copyWith(status: Status.loading));
+
       final content = await searchTicket(
         state.search,
         1,

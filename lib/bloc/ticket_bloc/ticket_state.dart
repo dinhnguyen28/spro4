@@ -30,12 +30,23 @@ final Map<TicketStatus, List<TicketStatus>> listStatus = {
   TicketStatus.SHARED: [TicketStatus.SHARED, TicketStatus.FOLLOWED],
 };
 
+const Map<TicketStatus, int> ticketCountTabs = {
+  TicketStatus.ONGOING: 0,
+  TicketStatus.COMPLETED: 0,
+  TicketStatus.CANCEL: 0,
+  TicketStatus.DRAFT: 0,
+  TicketStatus.SHARED: 0,
+};
+
 class TicketState extends Equatable {
   final Status status;
+  final Status tabStatus;
+
   final String search;
   final int page;
   final TicketStatus ticketStatus;
   final List<String> listServices;
+  final Map<TicketStatus, int> ticketCountTab;
   final List<Content> ticketContent;
   final int totalElements;
   final bool hasReachedMax;
@@ -51,10 +62,12 @@ class TicketState extends Equatable {
 
   const TicketState({
     this.status = Status.loading,
+    this.tabStatus = Status.loading,
     this.search = "",
     this.page = 1,
     this.ticketStatus = TicketStatus.NULL,
     this.listServices = const <String>[],
+    this.ticketCountTab = ticketCountTabs,
     this.ticketContent = const <Content>[],
     this.totalElements = 0,
     this.hasReachedMax = false,
@@ -71,10 +84,12 @@ class TicketState extends Equatable {
 
   TicketState copyWith({
     Status? status,
+    Status? tabStatus,
     String? search,
     int? page,
     TicketStatus? ticketStatus,
     List<String>? listServices,
+    Map<TicketStatus, int>? ticketCountTab,
     List<Content>? ticketContent,
     int? totalElements,
     bool? hasReachedMax,
@@ -90,10 +105,12 @@ class TicketState extends Equatable {
   }) {
     return TicketState(
       status: status ?? this.status,
+      tabStatus: tabStatus ?? this.tabStatus,
       search: search ?? this.search,
       page: page ?? this.page,
       ticketStatus: ticketStatus ?? this.ticketStatus,
       listServices: listServices ?? this.listServices,
+      ticketCountTab: ticketCountTab ?? this.ticketCountTab,
       ticketContent: ticketContent ?? this.ticketContent,
       totalElements: totalElements ?? this.totalElements,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
@@ -112,10 +129,12 @@ class TicketState extends Equatable {
   @override
   List<Object> get props => [
         status,
+        tabStatus,
         search,
         page,
         ticketStatus,
         listServices,
+        ticketCountTab,
         ticketContent,
         totalElements,
         hasReachedMax,

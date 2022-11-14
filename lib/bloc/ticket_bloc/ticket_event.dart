@@ -6,12 +6,16 @@ abstract class TicketEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class LoadAllTicket extends TicketEvent {
-  // final String search;
+class CountTicket extends TicketEvent {
+  const CountTicket();
+  @override
+  List<Object> get props => [];
+}
+
+class MyTicketLoadData extends TicketEvent {
   final TicketStatus ticketStatus;
 
-  const LoadAllTicket(
-    // this.search,
+  const MyTicketLoadData(
     this.ticketStatus,
   );
   @override
@@ -43,23 +47,17 @@ class SearchTicket extends TicketEvent {
 class CategoryChecked extends TicketEvent {
   final bool isChecked;
   final TicketStatus items;
-  // final List<String> seItem;
 
   const CategoryChecked(
     this.isChecked,
     this.items,
-    // this.seItem,
   );
   @override
   List<Object> get props => [];
 }
 
 class CategoryTicket extends TicketEvent {
-  // final List<String> search;
-
-  const CategoryTicket(
-      // this.search,
-      );
+  const CategoryTicket();
   @override
   List<Object> get props => [];
 }

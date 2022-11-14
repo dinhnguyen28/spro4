@@ -1,10 +1,56 @@
 import 'package:flutter/material.dart';
 
-class MyWidget extends StatelessWidget {
-  const MyWidget({super.key});
+import '../../my_ticket_page/my_ticket_page.dart';
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold();
+    return Scaffold(
+      backgroundColor: const Color(0xFFE5E5E5),
+      appBar: AppBar(
+        elevation: 0,
+        centerTitle: true,
+        title: const Text("Home page"),
+        leading: BackButton(
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Center(
+              child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const MyTicketPage()),
+                    );
+                  },
+                  child: const Text("Phiếu yêu cầu của tôi")),
+            ),
+            const SizedBox(
+              height: 40,
+            ),
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //       builder: (context) => const MyTicketPageTest()),
+                  // );
+                },
+                child: const Text("MyTicketPage TEST"),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 }
