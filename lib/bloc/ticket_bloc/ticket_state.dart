@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 part of 'ticket_bloc.dart';
 
 enum Status { loading, success, failure }
@@ -14,7 +16,7 @@ enum TicketStatus {
   PROCESSING,
   FOLLOWED,
   additionalRequest,
-  NULL,
+  none,
 }
 
 final Map<TicketStatus, List<TicketStatus>> listStatus = {
@@ -30,28 +32,20 @@ final Map<TicketStatus, List<TicketStatus>> listStatus = {
   TicketStatus.SHARED: [TicketStatus.SHARED, TicketStatus.FOLLOWED],
 };
 
-const Map<TicketStatus, int> ticketCountTabs = {
-  TicketStatus.ONGOING: 0,
-  TicketStatus.COMPLETED: 0,
-  TicketStatus.CANCEL: 0,
-  TicketStatus.DRAFT: 0,
-  TicketStatus.SHARED: 0,
-};
-
 class TicketState extends Equatable {
   final Status status;
   final Status tabStatus;
-
   final String search;
   final int page;
   final TicketStatus ticketStatus;
   final List<String> listServices;
-  final Map<TicketStatus, int> ticketCountTab;
+  final List<String> selectedlistServices;
+  final List<int> listTicketCountTab;
   final List<Content> ticketContent;
   final int totalElements;
   final bool hasReachedMax;
-  final bool isChecked;
   final List<TicketStatus> listStatus;
+  final List<TicketStatus> selectedListStatus;
   final List<dynamic> listDateFilter;
   final String fromDate;
   final String toDate;
@@ -65,14 +59,15 @@ class TicketState extends Equatable {
     this.tabStatus = Status.loading,
     this.search = "",
     this.page = 1,
-    this.ticketStatus = TicketStatus.NULL,
+    this.ticketStatus = TicketStatus.none,
     this.listServices = const <String>[],
-    this.ticketCountTab = ticketCountTabs,
+    this.selectedlistServices = const <String>[],
+    this.listTicketCountTab = const <int>[],
     this.ticketContent = const <Content>[],
     this.totalElements = 0,
     this.hasReachedMax = false,
-    this.isChecked = false,
     this.listStatus = const <TicketStatus>[],
+    this.selectedListStatus = const <TicketStatus>[],
     this.listDateFilter = const <dynamic>[],
     this.fromDate = "",
     this.toDate = "",
@@ -89,12 +84,13 @@ class TicketState extends Equatable {
     int? page,
     TicketStatus? ticketStatus,
     List<String>? listServices,
-    Map<TicketStatus, int>? ticketCountTab,
+    List<String>? selectedlistServices,
+    List<int>? listTicketCountTab,
     List<Content>? ticketContent,
     int? totalElements,
     bool? hasReachedMax,
-    bool? isChecked,
     List<TicketStatus>? listStatus,
+    List<TicketStatus>? selectedListStatus,
     List<dynamic>? listDateFilter,
     String? fromDate,
     String? toDate,
@@ -110,12 +106,13 @@ class TicketState extends Equatable {
       page: page ?? this.page,
       ticketStatus: ticketStatus ?? this.ticketStatus,
       listServices: listServices ?? this.listServices,
-      ticketCountTab: ticketCountTab ?? this.ticketCountTab,
+      selectedlistServices: selectedlistServices ?? this.selectedlistServices,
+      listTicketCountTab: listTicketCountTab ?? this.listTicketCountTab,
       ticketContent: ticketContent ?? this.ticketContent,
       totalElements: totalElements ?? this.totalElements,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
-      isChecked: isChecked ?? this.isChecked,
       listStatus: listStatus ?? this.listStatus,
+      selectedListStatus: selectedListStatus ?? this.selectedListStatus,
       listDateFilter: listDateFilter ?? this.listDateFilter,
       fromDate: fromDate ?? this.fromDate,
       toDate: toDate ?? this.toDate,
@@ -134,12 +131,13 @@ class TicketState extends Equatable {
         page,
         ticketStatus,
         listServices,
-        ticketCountTab,
+        selectedlistServices,
+        listTicketCountTab,
         ticketContent,
         totalElements,
         hasReachedMax,
-        isChecked,
         listStatus,
+        selectedListStatus,
         listDateFilter,
         fromDate,
         toDate,

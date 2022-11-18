@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:spro4/views/example_view/test_view.dart';
 
 import '../../my_ticket_page/my_ticket_page.dart';
 
@@ -36,18 +37,19 @@ class HomePage extends StatelessWidget {
             const SizedBox(
               height: 40,
             ),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //       builder: (context) => const MyTicketPageTest()),
-                  // );
-                },
-                child: const Text("MyTicketPage TEST"),
-              ),
-            )
+            // Center(
+            //   child: ElevatedButton(
+            //     onPressed: ()
+
+            // {
+            //   Navigator.push(
+            //     context,
+            //     MaterialPageRoute(builder: (context) => const TestView()),
+            //   );
+            // },
+            // child: const Text("TEST"),
+            //   ),
+            // )
           ],
         ),
       ),

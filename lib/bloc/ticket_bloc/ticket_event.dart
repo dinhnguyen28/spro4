@@ -99,3 +99,39 @@ class CategoryTimeSubmit extends TicketEvent {
   @override
   List<Object> get props => [];
 }
+
+class ListServicesChanged extends TicketEvent {
+  final List<String> listServices;
+
+  const ListServicesChanged(
+    this.listServices,
+  );
+  @override
+  List<Object> get props => [];
+}
+
+class ListTicketStatusChanged extends TicketEvent {
+  final List<TicketStatus> listStatus;
+
+  const ListTicketStatusChanged(
+    this.listStatus,
+  );
+  @override
+  List<Object> get props => [];
+}
+
+class TicketTimeFilterChanged extends TicketEvent {
+  final String something;
+
+  const TicketTimeFilterChanged(
+    this.something,
+  );
+  @override
+  List<Object> get props => [];
+}
+
+class ListServicesSubmit extends TicketEvent {
+  const ListServicesSubmit();
+  @override
+  List<Object> get props => [];
+}

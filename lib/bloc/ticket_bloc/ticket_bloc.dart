@@ -3,12 +3,10 @@ import 'dart:developer';
 import 'package:bloc/bloc.dart';
 import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:spro4/api/api_service.dart';
 import 'package:spro4/models/ticket_model/ticket_model.dart';
-import 'package:spro4/models/count_ticket_model/count_ticket_model.dart'
-    as ticketCountModel;
+
 import 'package:spro4/module/convert/string_to_date.dart';
 
 part 'ticket_state.dart';
@@ -29,6 +27,10 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
     on<CategoryCancel>(_onCategoryCancel);
     on<OpenDialog>(_onOpenDialog);
     on<CategoryTimeSubmit>(_onCategoryTimeSubmit);
+    on<ListServicesChanged>(_onListServicesChanged);
+    on<ListTicketStatusChanged>(_onListTicketStatusChanged);
+    on<TicketTimeFilterChanged>(_onTicketTimeFilterChanged);
+    on<ListServicesSubmit>(_onListServicesSubmit);
   }
 
   Future<void> _onMyTicketLoadData(
@@ -37,27 +39,28 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
       emit(state.copyWith(
         tabStatus: Status.loading,
         status: Status.loading,
+        ticketStatus: event.ticketStatus,
       ));
 
       final countTicket = await count();
 
-      Map<TicketStatus, int> ticketCountTabs = {
-        TicketStatus.ONGOING: (countTicket.data?.opened ?? 0) +
+      List<int> listCountTicket = [
+        (countTicket.data?.opened ?? 0) +
             (countTicket.data?.processing ?? 0) +
             (countTicket.data?.deletedByRu ?? 0),
-        TicketStatus.COMPLETED: (countTicket.data?.completed ?? 0) +
-            (countTicket.data?.closed ?? 0),
-        TicketStatus.CANCEL: countTicket.data?.cancel ?? 0,
-        TicketStatus.DRAFT: countTicket.data?.draft ?? 0,
-        TicketStatus.SHARED: countTicket.data?.shared ?? 0,
-      };
+        (countTicket.data?.completed ?? 0) + (countTicket.data?.closed ?? 0),
+        countTicket.data?.cancel ?? 0,
+        countTicket.data?.draft ?? 0,
+        countTicket.data?.shared ?? 0,
+      ];
+
+      final getlistServices = await getFilter();
 
       emit(state.copyWith(
         tabStatus: Status.success,
-        ticketCountTab: ticketCountTabs,
+        listTicketCountTab: listCountTicket,
+        selectedlistServices: getlistServices.data?.listServices,
       ));
-
-      final getlistServices = await getFilter();
 
       if (getlistServices.code == 1) {
         final content = await searchTicket(
@@ -83,6 +86,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
                 ticketStatus: event.ticketStatus,
                 listServices: getlistServices.data?.listServices ?? [],
                 listStatus: listStatus[event.ticketStatus],
+                selectedListStatus: listStatus[event.ticketStatus],
                 listDateFilter: [],
                 fromDate: "",
                 toDate: "",
@@ -99,6 +103,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
                 ticketStatus: event.ticketStatus,
                 listServices: getlistServices.data?.listServices ?? [],
                 listStatus: listStatus[event.ticketStatus],
+                selectedListStatus: listStatus[event.ticketStatus],
                 listDateFilter: [],
                 fromDate: "",
                 toDate: "",
@@ -111,7 +116,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
         // debugPrint(
         //     'LOAD ${event.ticketStatus.ticketStatus2String()}: "${state.search}" + ${state.listStatus}');
       } else {
-        emit(state.copyWith(status: Status.failure));
+        emit(state.copyWith(status: Status.success));
       }
     } catch (e) {
       emit(state.copyWith(status: Status.failure));
@@ -121,30 +126,40 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
   Future<void> _onRefreshTicketData(
       RefreshTicket event, Emitter<TicketState> emit) async {
     try {
-      emit(state.copyWith(status: Status.loading, tabStatus: Status.loading));
+      emit(state.copyWith(
+        status: Status.loading,
+        tabStatus: Status.loading,
+      ));
 
       final countTicket = await count();
 
-      Map<TicketStatus, int> ticketCountTabs = {
-        TicketStatus.ONGOING: (countTicket.data?.opened ?? 0) +
+      List<int> listCountTicket = [
+        (countTicket.data?.opened ?? 0) +
             (countTicket.data?.processing ?? 0) +
             (countTicket.data?.deletedByRu ?? 0),
-        TicketStatus.COMPLETED: (countTicket.data?.completed ?? 0) +
-            (countTicket.data?.closed ?? 0),
-        TicketStatus.CANCEL: countTicket.data?.cancel ?? 0,
-        TicketStatus.DRAFT: countTicket.data?.draft ?? 0,
-        TicketStatus.SHARED: countTicket.data?.shared ?? 0,
-      };
+        (countTicket.data?.completed ?? 0) + (countTicket.data?.closed ?? 0),
+        countTicket.data?.cancel ?? 0,
+        countTicket.data?.draft ?? 0,
+        countTicket.data?.shared ?? 0,
+      ];
 
-      emit(state.copyWith(
-        tabStatus: Status.success,
-        ticketCountTab: ticketCountTabs,
-      ));
+      // Map<TicketStatus, int> ticketCountTabs = {
+      //   TicketStatus.ONGOING: (countTicket.data?.opened ?? 0) +
+      //       (countTicket.data?.processing ?? 0) +
+      //       (countTicket.data?.deletedByRu ?? 0),
+      //   TicketStatus.COMPLETED: (countTicket.data?.completed ?? 0) +
+      //       (countTicket.data?.closed ?? 0),
+      //   TicketStatus.CANCEL: countTicket.data?.cancel ?? 0,
+      //   TicketStatus.DRAFT: countTicket.data?.draft ?? 0,
+      //   TicketStatus.SHARED: countTicket.data?.shared ?? 0,
+      // };
 
       final getlistServices = await getFilter();
 
       emit(state.copyWith(
-        listServices: getlistServices.data?.listServices ?? [],
+        tabStatus: Status.success,
+        listTicketCountTab: listCountTicket,
+        selectedlistServices: getlistServices.data?.listServices,
       ));
 
       if (getlistServices.code == 1) {
@@ -165,15 +180,27 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
         (content?.data?.content?.length ?? 0) < 10
             ? emit(state.copyWith(
                 status: Status.success,
-                ticketContent: content?.data?.content ?? [],
-                hasReachedMax: true,
                 search: state.search,
+                hasReachedMax: true,
+                ticketContent: content?.data?.content ?? [],
+                page: 2,
+                listServices: getlistServices.data?.listServices ?? [],
+                listStatus: listStatus[state.ticketStatus],
+                // listDateFilter: [],
+                fromDate: "",
+                toDate: "",
+                fromDateFinish: "",
+                toDateFinish: "",
+                fromDateCancel: "",
+                toDateCancel: "",
               ))
             : emit(state.copyWith(
                 status: Status.success,
+                search: state.search,
                 hasReachedMax: false,
                 ticketContent: content?.data?.content ?? [],
                 page: 2,
+                listServices: getlistServices.data?.listServices ?? [],
                 listStatus: listStatus[state.ticketStatus],
                 // listDateFilter: [],
                 fromDate: "",
@@ -249,16 +276,17 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
       (content?.data?.content?.length ?? 0) < 10
           ? emit(state.copyWith(
               status: Status.success,
+              page: 2,
+              search: event.search,
               ticketContent: content?.data?.content ?? [],
               hasReachedMax: true,
-              search: event.search,
             ))
           : emit(state.copyWith(
               status: Status.success,
               page: 2,
+              search: event.search,
               ticketContent: content?.data?.content ?? [],
               hasReachedMax: false,
-              search: event.search,
             ));
 
       // debugPrint(
@@ -270,8 +298,7 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
 
   List<TicketStatus> _tempSelected = [];
 
-  Future<void> _onCategoryChecked(
-      CategoryChecked event, Emitter<TicketState> emit) async {
+  void _onCategoryChecked(CategoryChecked event, Emitter<TicketState> emit) {
     List<TicketStatus> selectedItems = state.listStatus.toList();
 
     event.isChecked
@@ -281,22 +308,16 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
     emit(state.copyWith(listStatus: selectedItems));
   }
 
-  Future<void> _onCategoryDelete(
-      CategoryDelete event, Emitter<TicketState> emit) async {
+  void _onCategoryDelete(CategoryDelete event, Emitter<TicketState> emit) {
     emit(state.copyWith(listStatus: listStatus[state.ticketStatus]));
   }
 
-  Future<void> _onCategoryCancel(
-      CategoryCancel event, Emitter<TicketState> emit) async {
+  void _onCategoryCancel(CategoryCancel event, Emitter<TicketState> emit) {
     emit(state.copyWith(listStatus: _tempSelected));
-
-    // debugPrint(state.listStatus.toString());
   }
 
-  Future<void> _onOpenDialog(
-      OpenDialog event, Emitter<TicketState> emit) async {
+  void _onOpenDialog(OpenDialog event, Emitter<TicketState> emit) {
     _tempSelected = state.listStatus;
-    // debugPrint(_tempSelected.toString());
   }
 
   Future<void> _onCategoryTicket(
@@ -408,6 +429,58 @@ class TicketBloc extends Bloc<TicketEvent, TicketState> {
       ));
 
       // debugPrint(state.listDateFilter.toString());
+    } catch (_) {
+      emit(state.copyWith(status: Status.failure));
+    }
+  }
+
+  void _onListServicesChanged(
+      ListServicesChanged event, Emitter<TicketState> emit) {
+    print(event.listServices.length);
+
+    emit(state.copyWith(selectedlistServices: event.listServices));
+  }
+
+  void _onListTicketStatusChanged(
+      ListTicketStatusChanged event, Emitter<TicketState> emit) {
+    print(event.listStatus);
+
+    emit(state.copyWith(selectedListStatus: event.listStatus));
+  }
+
+  void _onTicketTimeFilterChanged(
+      TicketTimeFilterChanged event, Emitter<TicketState> emit) {
+    //
+  }
+
+  Future<void> _onListServicesSubmit(
+      ListServicesSubmit event, Emitter<TicketState> emit) async {
+    print(state.selectedlistServices.toString());
+
+    try {
+      // emit(state.copyWith(status: Status.loading));
+
+      // final content = await searchTicket(
+      //   state.search,
+      //   1,
+      //   state.ticketStatus.name,
+      //   state.selectedlistServices,
+      //   state.selectedListStatus,
+      //   state.fromDate,
+      //   state.toDate,
+      //   state.fromDateFinish,
+      //   state.toDateFinish,
+      //   state.fromDateCancel,
+      //   state.toDateCancel,
+      //   state.listDateFilter,
+      // );
+
+      // emit(state.copyWith(
+      //   status: Status.success,
+      //   page: 2,
+      //   ticketContent: content?.data?.content ?? [],
+      //   hasReachedMax: false,
+      // ));
     } catch (_) {
       emit(state.copyWith(status: Status.failure));
     }

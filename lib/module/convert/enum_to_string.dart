@@ -25,7 +25,7 @@ extension TicketStatus2String on TicketStatus {
         return "Theo dõi";
       case TicketStatus.additionalRequest:
         return "Cần bổ sung";
-      case TicketStatus.NULL:
+      case TicketStatus.none:
         return '';
     }
   }

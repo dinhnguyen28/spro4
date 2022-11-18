@@ -3,8 +3,70 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:spro4/bloc/ticket_bloc/ticket_bloc.dart';
 import 'package:spro4/module/convert/enum_to_string.dart';
 
-class CategoryDialog extends StatelessWidget {
-  const CategoryDialog({super.key, required this.ticketBloc});
+Future<void> categoryDialog(context, TicketBloc ticketBloc) {
+  void cancel() {
+    Navigator.pop(context);
+    ticketBloc.add(const CategoryCancel());
+  }
+
+  void delete() {
+    ticketBloc.add(const CategoryDelete());
+  }
+
+  void submit() {
+    Navigator.pop(context);
+    ticketBloc.add(const CategoryTicket());
+  }
+
+  return showDialog<void>(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) {
+        ticketBloc.add(const OpenDialog());
+        return BlocProvider.value(
+          value: ticketBloc,
+          child: AlertDialog(
+            title: const Text("Trạng thái"),
+            content: SingleChildScrollView(
+                child: BlocBuilder<TicketBloc, TicketState>(
+              builder: (context, state) {
+                return ListBody(
+                  children: [
+                    for (var item in listStatus[state.ticketStatus]!)
+                      CheckboxListTile(
+                          title: Text(item.ticketStatus2String()),
+                          value: state.listStatus.contains(item),
+                          onChanged: (isChecked) {
+                            ticketBloc.add(CategoryChecked(isChecked!, item));
+                          }),
+                  ],
+                );
+              },
+            )),
+            actions: [
+              TextButton(
+                onPressed: delete,
+                child: const Text(
+                  'Đặt lại',
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+              TextButton(
+                onPressed: cancel,
+                child: const Text('Huỷ'),
+              ),
+              ElevatedButton(
+                onPressed: submit,
+                child: const Text('Áp dụng'),
+              ),
+            ],
+          ),
+        );
+      });
+}
+
+class CategoryDialogs extends StatelessWidget {
+  const CategoryDialogs({super.key, required this.ticketBloc});
 
   final TicketBloc ticketBloc;
 

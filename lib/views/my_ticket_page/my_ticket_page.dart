@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,7 +9,7 @@ import 'package:spro4/module/deboucing/debouncer.dart';
 import 'package:spro4/module/time_stamp/time_stamp.dart';
 import 'package:spro4/views/dialogs/category_ticket_dialog/category_dialog.dart';
 import 'package:spro4/views/dialogs/category_time_ticket_dialog/category_time_dialog.dart';
-import 'package:spro4/views/dialogs/service_ticket_dialog/service_ticket_dialog.dart';
+import 'package:spro4/views/dialogs/category_ticket_sheet/category_ticket_sheet.dart';
 import 'package:spro4/views/phase_detail/phase_detail_page.dart';
 
 part '../home/my_ticket_list/my_ticket_list.dart';
@@ -45,13 +43,10 @@ class TicketPageState extends State<TicketPage> with TickerProviderStateMixin {
 
   final _debouncer = Debouncer(milliseconds: 1000);
 
-  int _onTapTabbarIndex = 0;
-
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(
-        length: TicketBloc().state.ticketCountTab.length, vsync: this);
+    _tabController = TabController(length: listStatus.length, vsync: this);
   }
 
   @override
@@ -118,43 +113,44 @@ class TicketPageState extends State<TicketPage> with TickerProviderStateMixin {
                   previous.status != current.status,
               builder: (context, state) {
                 List<Widget> tabsName = [];
-                state.ticketCountTab.forEach(
-                  (key, value) {
-                    tabsName.add(
-                      Row(
-                        children: [
-                          SizedBox(
-                              height: 40,
-                              child: Center(
-                                  child: Text(key.ticketStatus2String(),
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w400,
-                                        fontSize: 16,
-                                      )))),
-                          Padding(
-                            padding:
-                                const EdgeInsets.only(left: 8.0, right: 8.0),
-                            child: Chip(
-                              // backgroundColor: ,
-                              shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(200),
-                                      bottomRight: Radius.circular(200))),
-                              label: Text(
-                                value.toString(),
-                                // "${value > 100 ? "99+" : value}",
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 16,
-                                ),
+
+                for (int i = 0; i < listStatus.length; i++) {
+                  tabsName.add(
+                    Row(
+                      children: [
+                        SizedBox(
+                            height: 40,
+                            child: Center(
+                                child: Text(
+                                    TicketStatus.values[i]
+                                        .ticketStatus2String(),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 16,
+                                    )))),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                          child: Chip(
+                            backgroundColor: _tabController.index == i
+                                ? Colors.red
+                                : Colors.grey,
+                            label: Text(
+                              state.listTicketCountTab.isEmpty
+                                  ? ""
+                                  : state.listTicketCountTab[i].toString(),
+                              // "${value > 100 ? "99+" : value}",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 16,
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                );
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                ;
                 return TabBar(
                   controller: _tabController,
                   isScrollable: true,
@@ -168,11 +164,36 @@ class TicketPageState extends State<TicketPage> with TickerProviderStateMixin {
 
             Row(
               children: [
-                OutlinedButton(
+                Expanded(
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(26))),
+                    ),
+                    child: const Text(
+                      'Phân loại',
+                      style: TextStyle(color: Color(0xFF262626)),
+                    ),
                     onPressed: () {
-                      serviceTicketDialog(context);
+                      categoryTicket(context, context.read<TicketBloc>());
                     },
-                    child: const Text('Dịch vụ'))
+                  ),
+                ),
+                Expanded(
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(26))),
+                    ),
+                    child: const Text(
+                      "Thời gian",
+                      style: TextStyle(color: Color(0xFF262626)),
+                    ),
+                    onPressed: () {
+                      categoryTimeDialog(context, context.read<TicketBloc>());
+                    },
+                  ),
+                ),
               ],
             ),
             // switch (state.status) {
@@ -257,9 +278,8 @@ class TicketPageState extends State<TicketPage> with TickerProviderStateMixin {
               physics: const NeverScrollableScrollPhysics(),
               controller: _tabController,
               children: <Widget>[
-                // for (int i = 0; i < _tabsLength; i++)
-                for (var item in TicketBloc().state.ticketCountTab.keys)
-                  MyTicketList(ticketStatus: item),
+                for (var key in listStatus.keys)
+                  MyTicketList(ticketStatus: key),
               ],
             )),
           ],

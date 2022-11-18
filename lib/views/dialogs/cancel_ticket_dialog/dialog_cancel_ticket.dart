@@ -47,15 +47,6 @@ Future<void> cancelTicketDialog(context, PhaseBloc phaseBloc) {
 
                               Navigator.of(context).pop();
                             }
-                            // if (state.popContext) {
-                            //   phaseBloc
-                            //       .add(CancelTicket(_reasonController.text));
-                            //   _reasonController.clear();
-                            //   Navigator.of(context).pop();
-                            // } else {
-                            //   phaseBloc
-                            //       .add(CancelTicket(_reasonController.text));
-                            // }
                           });
                         },
                         child: const Text('Gửi'),

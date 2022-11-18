@@ -84,6 +84,7 @@ class Login extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(top: 30.0, bottom: 36.0),
                         child: TextFormField(
+                            obscureText: true,
                             controller: _passwordController,
                             decoration: InputDecoration(
                                 filled: true,

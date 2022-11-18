@@ -30,7 +30,6 @@ class TicketListState extends State<TicketList> {
   @override
   void initState() {
     super.initState();
-    // context.read<TicketBloc>().add(const CountTicket());
     context.read<TicketBloc>().add(MyTicketLoadData(widget.ticketStatus));
     _scrollController.addListener(_onScroll);
   }

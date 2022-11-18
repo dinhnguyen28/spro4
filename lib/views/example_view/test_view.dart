@@ -1,73 +1,138 @@
 // main.dart
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+class TestView extends StatefulWidget {
+  const TestView({super.key});
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-        // Remove the debug banner
-        debugShowCheckedModeBanner: false,
-        title: 'KindaCode.com',
-        theme: ThemeData(
-          primarySwatch: Colors.indigo,
-        ),
-        home: const HomePage());
-  }
+  State<TestView> createState() => _TestViewState();
 }
 
-class HomePage extends StatelessWidget {
-  const HomePage({Key? key}) : super(key: key);
+class _TestViewState extends State<TestView> {
+  final popupBuilderKey = GlobalKey<DropdownSearchState<String>>();
+  bool popupBuilderSelection = true;
+
+  String text = "Chọn tất cả";
 
   @override
   Widget build(BuildContext context) {
+    void handleCheckBoxState() {
+      var selectedItem =
+          popupBuilderKey.currentState?.popupGetSelectedItems ?? [];
+
+      var isAllSelected =
+          popupBuilderKey.currentState?.popupIsAllItemSelected ?? false;
+
+      popupBuilderSelection =
+          selectedItem.isEmpty ? false : (isAllSelected ? true : false);
+
+      setState(() {
+        if (popupBuilderSelection) {
+          text = "Xoá tất cả";
+        } else {
+          text = "Chọn tất cả";
+        }
+      });
+
+      // if (updateState) setState(() {});
+    }
+
+    // handleCheckBoxState(updateState: false);
+
+    void tapFunction() {
+      print(popupBuilderSelection);
+
+      // setState(() {
+      if (popupBuilderSelection) {
+        popupBuilderKey.currentState!.popupDeselectAllItems();
+        text = "Chọn tất cả";
+      } else {
+        popupBuilderKey.currentState!.popupSelectAllItems();
+        text = "Xoá tất cả";
+      }
+      // });
+    }
+
     return Scaffold(
-      appBar: AppBar(title: const Text('KindaCode.com')),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () => _fetchData(context),
-          child: const Text('Load Data'),
+      appBar: AppBar(title: const Text('Test')),
+      body: SizedBox(
+        height: 70,
+        child: DropdownSearch<String>.multiSelection(
+          onChanged: (value) {
+            print(value);
+          },
+          dropdownBuilder: (context, selectedItems) {
+            return const SizedBox.shrink();
+          },
+          key: popupBuilderKey,
+          selectedItems: const ["A", "B", "C", "D", "E", "F"],
+          items: const ["A", "B", "C", "D", "E", "F"],
+          popupProps: PopupPropsMultiSelection.modalBottomSheet(
+            onItemAdded: (l, s) => handleCheckBoxState(),
+            onItemRemoved: (l, s) => handleCheckBoxState(),
+            containerBuilder: (ctx, popupWidget) {
+              return Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            tapFunction();
+                          },
+                          child: Text(text),
+                        ),
+
+                        // Checkbox(
+                        //     value: popupBuilderSelection,
+                        //     tristate: true,
+                        //     onChanged: (value) {
+                        //       value ??= true;
+                        //       if (value == true) {
+                        //         popupBuilderKey.currentState!
+                        //             .popupSelectAllItems();
+                        //       } else if (value == false) {
+                        //         popupBuilderKey.currentState!
+                        //             .popupDeselectAllItems();
+                        //       }
+                        //       // handleCheckBoxState();
+
+                        //       ////
+                        //       // value ??= false;
+                        //       // setState(() {
+                        //       //   isSelected = value;
+                        //       //   if (widget.onChanged != null)
+                        //       //     widget.onChanged!(value);
+                        //       // });
+                        //     }),
+                      ],
+                    ),
+                    Expanded(child: popupWidget),
+                  ],
+                ),
+              );
+
+              // CheckBoxWidget(
+              //   isSelected: popupBuilderSelection,
+              //   onChanged: (selectAll) {
+              //     if (selectAll == true) {
+              //       popupBuilderKey.currentState!.popupSelectAllItems();
+              //     } else if (selectAll == false) {
+              //       popupBuilderKey.currentState!.popupDeselectAllItems();
+              //     }
+              //     handleCheckBoxState();
+              //   },
+              //   child:
+              //       Container(color: Colors.amberAccent, child: popupWidget),
+              // );
+            },
+          ),
         ),
       ),
     );
-  }
-
-  void _fetchData(BuildContext context) async {
-    // show the loading dialog
-    showDialog(
-        // The user CANNOT close this dialog  by pressing outsite it
-        barrierDismissible: false,
-        context: context,
-        builder: (_) {
-          return Dialog(
-            // The background color
-            backgroundColor: Colors.white,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  // The loading indicator
-                  CircularProgressIndicator(),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  // Some text
-                  Text('Loading...')
-                ],
-              ),
-            ),
-          );
-        });
-
-    // Your asynchronous computation here (fetching data from an API, processing files, inserting something to the database, etc)
-    await Future.delayed(const Duration(seconds: 3));
-
-    // Close the dialog programmatically
-    Navigator.of(context).pop();
   }
 }
